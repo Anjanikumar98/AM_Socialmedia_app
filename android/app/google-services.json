@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "993071309221",
+    "project_id": "amsocialmediaapp",
+    "storage_bucket": "amsocialmediaapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993071309221:android:4273ffcc5f8c9909c6084c",
+        "android_client_info": {
+          "package_name": "com.example.am_socialmedia_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPuaNBU5Xb-dFvJZgGeTtys0xBIGSxABE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

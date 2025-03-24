@@ -1,11 +1,11 @@
+import 'package:am_socialmedia_app/models/user.dart';
+import 'package:am_socialmedia_app/posts/story/status_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:social_media_app/models/status.dart';
-import 'package:social_media_app/models/user.dart';
-import 'package:social_media_app/posts/story/status_view.dart';
-import 'package:social_media_app/utils/firebase.dart';
-import 'package:social_media_app/widgets/indicators.dart';
+import '../models/status.dart';
+import '../utils/firebase.dart';
+import 'indicators.dart';
 
 class StoryWidget extends StatelessWidget {
   const StoryWidget({Key? key}) : super(key: key);
@@ -42,10 +42,11 @@ class StoryWidget extends StatelessWidget {
                           // list so we can get the rest of the user's id
                           users.remove('${firebaseAuth.currentUser!.uid}');
                           return _buildStatusAvatar(
-                              statusListSnapshot.get('userId'),
-                              statusListSnapshot.id,
-                              status.statusId!,
-                              index);
+                            statusListSnapshot.get('userId'),
+                            statusListSnapshot.id,
+                            status.statusId!,
+                            index,
+                          );
                         } else {
                           return const SizedBox();
                         }
@@ -54,11 +55,7 @@ class StoryWidget extends StatelessWidget {
                   },
                 );
               } else {
-                return Center(
-                  child: Text(
-                    'No Status',
-                  ),
-                );
+                return Center(child: Text('No Status'));
               }
             } else {
               return circularProgress(context);
@@ -92,12 +89,13 @@ class StoryWidget extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => StatusScreen(
-                          statusId: chatId,
-                          storyId: messageId,
-                          initPage: index,
-                          userId: userId,
-                        ),
+                        builder:
+                            (_) => StatusScreen(
+                              statusId: chatId,
+                              storyId: messageId,
+                              initPage: index,
+                              userId: userId,
+                            ),
                       ),
                     );
                   },
@@ -105,9 +103,7 @@ class StoryWidget extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.secondary,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.transparent,
-                      ),
+                      border: Border.all(color: Colors.transparent),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey.withOpacity(0.3),
@@ -131,11 +127,8 @@ class StoryWidget extends StatelessWidget {
                 ),
                 Text(
                   user.username!,
-                  style: TextStyle(
-                    fontSize: 10.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
+                  style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           );

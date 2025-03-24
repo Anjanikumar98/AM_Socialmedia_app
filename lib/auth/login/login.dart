@@ -1,12 +1,11 @@
+import 'package:am_socialmedia_app/auth/register/register.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:provider/provider.dart';
-
 import '../../components/password_text_field.dart';
 import '../../components/text_form_builder.dart';
-import '../../models/register.dart';
 import '../../utils/validation.dart';
 import '../../view_models/auth/login_view_model.dart';
 import '../../widgets/indicators.dart';
@@ -34,18 +33,13 @@ class _LoginState extends State<Login> {
             Container(
               height: 170.0,
               width: MediaQuery.of(context).size.width,
-              child: Image.asset(
-                'assets/images/login.png',
-              ),
+              child: Image.asset('assets/images/login.png'),
             ),
             SizedBox(height: 10.0),
             Center(
               child: Text(
                 'Welcome back!',
-                style: TextStyle(
-                  fontSize: 23.0,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: TextStyle(fontSize: 23.0, fontWeight: FontWeight.w900),
               ),
             ),
             Center(
@@ -69,9 +63,7 @@ class _LoginState extends State<Login> {
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (_) => Register(),
-                      ),
+                      CupertinoPageRoute(builder: (_) => RegisterScreen()),
                     );
                   },
                   child: Text(
@@ -136,9 +128,7 @@ class _LoginState extends State<Login> {
                     alignment: Alignment.centerRight,
                     child: Text(
                       'Forgot Password?',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),

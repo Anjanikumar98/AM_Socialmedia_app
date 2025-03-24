@@ -1,22 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:provider/provider.dart';
-
 import '../../components/password_text_field.dart';
 import '../../components/text_form_builder.dart';
 import '../../utils/validation.dart';
 import '../../view_models/auth/register_view_model.dart';
 import '../../widgets/indicators.dart';
 
-class Register extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   @override
-  _RegisterState createState() => _RegisterState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _RegisterState extends State<Register> {
+class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     RegisterViewModel viewModel = Provider.of<RegisterViewModel>(context);
@@ -42,9 +40,7 @@ class _RegisterState extends State<Register> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Already have an account  ',
-                ),
+                Text('Already have an account  '),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Text(
@@ -148,7 +144,8 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
                 backgroundColor: MaterialStateProperty.all<Color>(
-                    Theme.of(context).colorScheme.secondary),
+                  Theme.of(context).colorScheme.secondary,
+                ),
               ),
               child: Text(
                 'sign up'.toUpperCase(),

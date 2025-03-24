@@ -1,13 +1,12 @@
+import 'package:am_socialmedia_app/widgets/view_notification_details.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:social_media_app/models/notification.dart';
-import 'package:social_media_app/pages/profile.dart';
-import 'package:social_media_app/utils/firebase.dart';
-import 'package:social_media_app/widgets/view_notification_details.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
-import 'package:social_media_app/widgets/indicators.dart';
+import '../models/notification.dart';
+import '../pages/profile.dart';
+import '../utils/firebase.dart';
+import 'indicators.dart';
 
 class ActivityItems extends StatefulWidget {
   final ActivityModel? activity;
@@ -33,66 +32,66 @@ class _ActivityItemsState extends State<ActivityItems> {
         onTap: () {
           Navigator.of(context).push(
             CupertinoPageRoute(
-              builder: (_) => widget.activity!.type == "follow"
-                  ? Profile(profileId: widget.activity!.userId)
-                  : ViewActivityDetails(activity: widget.activity!),
+              builder:
+                  (_) =>
+                      widget.activity!.type == "follow"
+                          ? Profile(profileId: widget.activity!.userId)
+                          : ViewActivityDetails(activity: widget.activity!),
             ),
           );
         },
-        leading: widget.activity!.userDp!.isEmpty
-            ? CircleAvatar(
-                radius: 20.0,
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-                child: Center(
-                  child: Text(
-                    '${widget.activity!.username![0].toUpperCase()}',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15.0,
-                      fontWeight: FontWeight.bold,
+        leading:
+            widget.activity!.userDp!.isEmpty
+                ? CircleAvatar(
+                  radius: 20.0,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  child: Center(
+                    child: Text(
+                      '${widget.activity!.username![0].toUpperCase()}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+                )
+                : CircleAvatar(
+                  radius: 20.0,
+                  backgroundImage: CachedNetworkImageProvider(
+                    '${widget.activity!.userDp!}',
+                  ),
                 ),
-              )
-            : CircleAvatar(
-                radius: 20.0,
-                backgroundImage: CachedNetworkImageProvider(
-                  '${widget.activity!.userDp!}',
-                ),
-              ),
         title: RichText(
           overflow: TextOverflow.ellipsis,
           text: TextSpan(
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 14.0,
-            ),
+            style: TextStyle(color: Colors.black, fontSize: 14.0),
             children: [
               TextSpan(
                 text: '${widget.activity!.username!} ',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.0,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
                 ),
               ),
               TextSpan(
                 text: buildTextConfiguration(),
                 style: TextStyle(
                   fontSize: 12.0,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
                 ),
               ),
             ],
           ),
         ),
-        subtitle: Text(
-          timeago.format(widget.activity!.timestamp!.toDate()),
-        ),
+        subtitle: Text(timeago.format(widget.activity!.timestamp!.toDate())),
         trailing: previewConfiguration(),
       ),
     );
@@ -103,10 +102,7 @@ class _ActivityItemsState extends State<ActivityItems> {
       alignment: Alignment.centerRight,
       padding: EdgeInsets.only(right: 20.0),
       color: Theme.of(context).colorScheme.secondary,
-      child: Icon(
-        CupertinoIcons.delete,
-        color: Colors.white,
-      ),
+      child: Icon(CupertinoIcons.delete, color: Colors.white),
     );
   }
 
@@ -116,12 +112,11 @@ class _ActivityItemsState extends State<ActivityItems> {
         .collection('notifications')
         .doc(widget.activity!.postId)
         .get()
-        .then((doc) => {
-              if (doc.exists)
-                {
-                  doc.reference.delete(),
-                }
-            });
+        .then(
+          (doc) => {
+            if (doc.exists) {doc.reference.delete()},
+          },
+        );
   }
 
   previewConfiguration() {

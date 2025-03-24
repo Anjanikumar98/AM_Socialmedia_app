@@ -37,7 +37,7 @@ class _LandingState extends State<Landing> {
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Ubuntu-Regular',
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -51,9 +51,7 @@ class _LandingState extends State<Landing> {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushReplacement(
-                    CupertinoPageRoute(
-                      builder: (_) => Login(),
-                    ),
+                    CupertinoPageRoute(builder: (_) => Login()),
                   );
                 },
                 child: Container(
@@ -85,9 +83,7 @@ class _LandingState extends State<Landing> {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushReplacement(
-                    CupertinoPageRoute(
-                      builder: (_) => Login(),
-                    ),
+                    CupertinoPageRoute(builder: (_) => Login()),
                   );
                 },
                 child: Container(
@@ -115,7 +111,7 @@ class _LandingState extends State<Landing> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

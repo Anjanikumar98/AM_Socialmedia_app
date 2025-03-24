@@ -2,7 +2,6 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-
 import '../components/fab_container.dart';
 import '../pages/feeds.dart';
 import '../pages/notification.dart';
@@ -19,18 +18,8 @@ class _TabScreenState extends State<TabScreen> {
   int _page = 0;
 
   List pages = [
-    {
-      'title': 'Home',
-      'icon': Ionicons.home,
-      'page': Feeds(),
-      'index': 0,
-    },
-    {
-      'title': 'Search',
-      'icon': Ionicons.search,
-      'page': Search(),
-      'index': 1,
-    },
+    {'title': 'Home', 'icon': Ionicons.home, 'page': Feeds(), 'index': 0},
+    {'title': 'Search', 'icon': Ionicons.search, 'page': Search(), 'index': 1},
     {
       'title': 'unsee',
       'icon': Ionicons.add_circle,
@@ -79,20 +68,22 @@ class _TabScreenState extends State<TabScreen> {
               item['index'] == 2
                   ? buildFab()
                   : Padding(
-                      padding: const EdgeInsets.only(top: 5.0),
-                      child: IconButton(
-                        icon: Icon(
-                          item['icon'],
-                          color: item['index'] != _page
-                              ? Theme.of(context).brightness == Brightness.dark
-                                  ? Colors.white
-                                  : Colors.black
-                              : Theme.of(context).colorScheme.secondary,
-                          size: 25.0,
-                        ),
-                        onPressed: () => navigationTapped(item['index']),
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: IconButton(
+                      icon: Icon(
+                        item['icon'],
+                        color:
+                            item['index'] != _page
+                                ? Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.white
+                                    : Colors.black
+                                : Theme.of(context).colorScheme.secondary,
+                        size: 25.0,
                       ),
+                      onPressed: () => navigationTapped(item['index']),
                     ),
+                  ),
             SizedBox(width: 5),
           ],
         ),
@@ -105,10 +96,7 @@ class _TabScreenState extends State<TabScreen> {
       height: 45.0,
       width: 45.0,
       // ignore: missing_required_param
-      child: FabContainer(
-        icon: Ionicons.add_outline,
-        mini: true,
-      ),
+      child: FabContainer(icon: Ionicons.add_outline, mini: true),
     );
   }
 
