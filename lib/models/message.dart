@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'enum/message_type.dart';
 
 class Message {
@@ -11,29 +10,26 @@ class Message {
 
   Message({this.content, this.senderUid, this.messageId, this.type, this.time});
 
-  Message.fromJson(Map<String, dynamic> json) {
-    content = json['content'];
-    senderUid = json['senderUid'];
-    messageId = json['messageId'];
-    if (json['type'] == 'text') {
-      type = MessageType.TEXT;
-    } else {
-      type = MessageType.IMAGE;
-    }
-    time = json['time'];
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      content: json['content'] as String?,
+      senderUid: json['senderUid'] as String?,
+      messageId: json['messageId'] as String?,
+      type:
+          (json['type']?.toString().toLowerCase() == 'text')
+              ? MessageType.TEXT
+              : MessageType.IMAGE,
+      time: json['time'] is Timestamp ? json['time'] as Timestamp : null,
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['content'] = this.content;
-    data['senderUid'] = this.senderUid;
-    data['messageId'] = this.messageId;
-    if (this.type == MessageType.TEXT) {
-      data['type'] = 'text';
-    } else {
-      data['type'] = 'image';
-    }
-    data['time'] = this.time;
-    return data;
+    return {
+      'content': content,
+      'senderUid': senderUid,
+      'messageId': messageId,
+      'type': type == MessageType.TEXT ? 'text' : 'image',
+      'time': time,
+    };
   }
 }

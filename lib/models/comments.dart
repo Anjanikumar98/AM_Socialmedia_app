@@ -15,21 +15,24 @@ class CommentModel {
     this.userId,
   });
 
-  CommentModel.fromJson(Map<String, dynamic> json) {
-    username = json['username'];
-    comment = json['comment'];
-    timestamp = json['timestamp'];
-    userDp = json['userDp'];
-    userId = json['userId'];
+  // Factory constructor with null safety and type casting
+  factory CommentModel.fromJson(Map<String, dynamic> json) {
+    return CommentModel(
+      username: json['username'] as String?,
+      comment: json['comment'] as String?,
+      timestamp: json['timestamp'] is Timestamp ? json['timestamp'] : null,
+      userDp: json['userDp'] as String?,
+      userId: json['userId'] as String?,
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['username'] = this.username;
-    data['comment'] = this.comment;
-    data['timestamp'] = this.timestamp;
-    data['userDp'] = this.userDp;
-    data['userId'] = this.userId;
-    return data;
+    return {
+      'username': username,
+      'comment': comment,
+      'timestamp': timestamp ?? Timestamp.now(),
+      'userDp': userDp,
+      'userId': userId,
+    };
   }
 }

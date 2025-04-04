@@ -4,7 +4,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/enum/message_type.dart';
 import '../../models/status.dart';
 import '../../utils/firebase.dart';
@@ -64,18 +63,16 @@ class _ConfirmStatusState extends State<ConfirmStatus> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(
-          Icons.done,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.done, color: Colors.white),
         onPressed: () async {
           setState(() {
             loading = true;
           });
           //check if a user has uploaded a status
-          QuerySnapshot snapshot = await statusRef
-              .where('userId', isEqualTo: firebaseAuth.currentUser!.uid)
-              .get();
+          QuerySnapshot snapshot =
+              await statusRef
+                  .where('userId', isEqualTo: firebaseAuth.currentUser!.uid)
+                  .get();
           if (snapshot.docs.isNotEmpty) {
             List chatList = snapshot.docs;
             DocumentSnapshot chatListSnapshot = chatList[0];
@@ -116,8 +113,11 @@ class _ConfirmStatusState extends State<ConfirmStatus> {
   }
 
   Future<String> uploadMedia(File image) async {
-    Reference storageReference =
-        storage.ref().child("status").child(uuid.v1()).child(uuid.v4());
+    Reference storageReference = storage
+        .ref()
+        .child("status")
+        .child(uuid.v1())
+        .child(uuid.v4());
     UploadTask uploadTask = storageReference.putFile(image);
     await uploadTask.whenComplete(() => null);
     String imageUrl = await storageReference.getDownloadURL();

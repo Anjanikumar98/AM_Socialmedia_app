@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:provider/provider.dart';
-
 import '../components/custom_image.dart';
 import '../models/user.dart';
 import '../utils/firebase.dart';
@@ -62,7 +61,7 @@ class _CreatePostState extends State<CreatePost> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
           body: ListView(
@@ -72,7 +71,7 @@ class _CreatePostState extends State<CreatePost> {
               StreamBuilder(
                 stream: usersRef.doc(currentUserId()).snapshots(),
                 builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  if (snapshot.hasData) {
+                  if (snapshot.hasData && snapshot.data!.data() != null) {
                     UserModel user = UserModel.fromJson(
                       snapshot.data!.data() as Map<String, dynamic>,
                     );
@@ -85,12 +84,10 @@ class _CreatePostState extends State<CreatePost> {
                         user.username!,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text(
-                        user.email!,
-                      ),
+                      subtitle: Text(user.email!),
                     );
                   }
-                  return Container();
+                  return Center(child: CircularProgressIndicator()); // Show loader until data is available
                 },
               ),
               InkWell(
@@ -100,45 +97,40 @@ class _CreatePostState extends State<CreatePost> {
                   height: MediaQuery.of(context).size.width - 30,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(5.0),
-                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
                     border: Border.all(
                       color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
-                  child: viewModel.imgLink != null
-                      ? CustomImage(
-                          imageUrl: viewModel.imgLink,
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.width - 30,
-                          fit: BoxFit.cover,
-                        )
-                      : viewModel.mediaUrl == null
+                  child:
+                      viewModel.imgLink != null
+                          ? CustomImage(
+                            imageUrl: viewModel.imgLink,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.width - 30,
+                            fit: BoxFit.cover,
+                          )
+                          : viewModel.mediaUrl == null
                           ? Center(
-                              child: Text(
-                                'Upload a Photo',
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
+                            child: Text(
+                              'Upload a Photo',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
-                            )
-                          : Image.file(
-                              viewModel.mediaUrl!,
-                              width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.width - 30,
-                              fit: BoxFit.cover,
                             ),
+                          )
+                          : Image.file(
+                            viewModel.mediaUrl!,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.width - 30,
+                            fit: BoxFit.cover,
+                          ),
                 ),
               ),
               SizedBox(height: 20.0),
               Text(
                 'Post Caption'.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
               ),
               TextFormField(
                 initialValue: viewModel.description,
@@ -152,10 +144,7 @@ class _CreatePostState extends State<CreatePost> {
               SizedBox(height: 20.0),
               Text(
                 'Location'.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
               ),
               ListTile(
                 contentPadding: EdgeInsets.all(0.0),
@@ -174,10 +163,7 @@ class _CreatePostState extends State<CreatePost> {
                 ),
                 trailing: IconButton(
                   tooltip: "Use your current location",
-                  icon: Icon(
-                    CupertinoIcons.map_pin_ellipse,
-                    size: 25.0,
-                  ),
+                  icon: Icon(CupertinoIcons.map_pin_ellipse, size: 25.0),
                   iconSize: 30.0,
                   color: Theme.of(context).colorScheme.secondary,
                   onPressed: () => viewModel.getLocation(),
@@ -193,9 +179,7 @@ class _CreatePostState extends State<CreatePost> {
   showImageChoices(BuildContext context, PostsViewModel viewModel) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       builder: (BuildContext context) {
         return FractionallySizedBox(
           heightFactor: .6,
@@ -207,9 +191,7 @@ class _CreatePostState extends State<CreatePost> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Text(
                   'Select Image',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               Divider(),

@@ -46,11 +46,12 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
     if (query == "") {
       filteredUsers = users;
     } else {
-      List userSearch = users.where((userSnap) {
-        Map user = userSnap.data() as Map<String, dynamic>;
-        String userName = user['username'];
-        return userName.toLowerCase().contains(query.toLowerCase());
-      }).toList();
+      List userSearch =
+          users.where((userSnap) {
+            Map user = userSnap.data() as Map<String, dynamic>;
+            String userName = user['username'];
+            return userName.toLowerCase().contains(query.toLowerCase());
+          }).toList();
       setState(() {
         filteredUsers = userSearch as List<DocumentSnapshot<Object?>>;
       });
@@ -69,14 +70,13 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
           Constants.appName,
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w900),
         ),
         centerTitle: true,
       ),
@@ -115,9 +115,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
               textAlignVertical: TextAlignVertical.center,
               maxLength: 10,
               maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(20),
-              ],
+              inputFormatters: [LengthLimitingTextInputFormatter(20)],
               textCapitalization: TextCapitalization.sentences,
               onChanged: (query) {
                 search(query);
@@ -137,9 +135,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                 border: InputBorder.none,
                 counterText: '',
                 hintText: 'Search...',
-                hintStyle: TextStyle(
-                  fontSize: 13.0,
-                ),
+                hintStyle: TextStyle(fontSize: 13.0),
               ),
             ),
           ),
@@ -152,8 +148,10 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
     if (!loading) {
       if (filteredUsers.isEmpty) {
         return Center(
-          child: Text("No User Found",
-              style: TextStyle(fontWeight: FontWeight.bold),),
+          child: Text(
+            "No User Found",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         );
       } else {
         return Expanded(
@@ -162,8 +160,9 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
               itemCount: filteredUsers.length,
               itemBuilder: (BuildContext context, int index) {
                 DocumentSnapshot doc = filteredUsers[index];
-                UserModel user =
-                    UserModel.fromJson(doc.data() as Map<String, dynamic>);
+                UserModel user = UserModel.fromJson(
+                  doc.data() as Map<String, dynamic>,
+                );
                 if (doc.id == currentUserId()) {
                   Timer(Duration(milliseconds: 500), () {
                     setState(() {
@@ -173,73 +172,76 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                 }
                 return ListTile(
                   onTap: () => showProfile(context, profileId: user.id!),
-                  leading: user.photoUrl!.isEmpty
-                      ? CircleAvatar(
-                          radius: 20.0,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.secondary,
-                          child: Center(
-                            child: Text(
-                              '${user.username![0].toUpperCase()}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.w900,
+                  leading:
+                      user.photoUrl!.isEmpty
+                          ? CircleAvatar(
+                            radius: 20.0,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
+                            child: Center(
+                              child: Text(
+                                '${user.username![0].toUpperCase()}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
                             ),
+                          )
+                          : CircleAvatar(
+                            radius: 20.0,
+                            backgroundImage: CachedNetworkImageProvider(
+                              '${user.photoUrl}',
+                            ),
                           ),
-                        )
-                      : CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage: CachedNetworkImageProvider(
-                            '${user.photoUrl}',
-                          ),
-                        ),
                   title: Text(
                     user.username!,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text(
-                    user.email!,
-                  ),
+                  subtitle: Text(user.email!),
                   trailing: GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
-                          builder: (_) => StreamBuilder(
-                            stream: chatIdRef
-                                .where(
-                                  "users",
-                                  isEqualTo: getUser(
-                                    firebaseAuth.currentUser!.uid,
-                                    doc.id,
-                                  ),
-                                )
-                                .snapshots(),
-                            builder: (context,
-                                AsyncSnapshot<QuerySnapshot> snapshot) {
-                              if (snapshot.hasData) {
-                                var snap = snapshot.data;
-                                List docs = snap!.docs;
-                                print(snapshot.data!.docs.toString());
-                                return docs.isEmpty
-                                    ? Conversation(
-                                        userId: doc.id,
-                                        chatId: 'newChat',
-                                      )
-                                    : Conversation(
-                                        userId: doc.id,
-                                        chatId:
-                                            docs[0].get('chatId').toString(),
-                                      );
-                              }
-                              return Conversation(
-                                userId: doc.id,
-                                chatId: 'newChat',
-                              );
-                            },
-                          ),
+                          builder:
+                              (_) => StreamBuilder(
+                                stream:
+                                    chatIdRef
+                                        .where(
+                                          "users",
+                                          isEqualTo: getUser(
+                                            firebaseAuth.currentUser!.uid,
+                                            doc.id,
+                                          ),
+                                        )
+                                        .snapshots(),
+                                builder: (
+                                  context,
+                                  AsyncSnapshot<QuerySnapshot> snapshot,
+                                ) {
+                                  if (snapshot.hasData) {
+                                    var snap = snapshot.data;
+                                    List docs = snap!.docs;
+                                    print(snapshot.data!.docs.toString());
+                                    return docs.isEmpty
+                                        ? Conversation(
+                                          userId: doc.id,
+                                          chatId: 'newChat',
+                                        )
+                                        : Conversation(
+                                          userId: doc.id,
+                                          chatId:
+                                              docs[0].get('chatId').toString(),
+                                        );
+                                  }
+                                  return Conversation(
+                                    userId: doc.id,
+                                    chatId: 'newChat',
+                                  );
+                                },
+                              ),
                         ),
                       );
                     },
@@ -272,18 +274,14 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
         );
       }
     } else {
-      return Center(
-        child: circularProgress(context),
-      );
+      return Center(child: circularProgress(context));
     }
   }
 
   showProfile(BuildContext context, {String? profileId}) {
     Navigator.push(
       context,
-      CupertinoPageRoute(
-        builder: (_) => Profile(profileId: profileId),
-      ),
+      CupertinoPageRoute(builder: (_) => Profile(profileId: profileId)),
     );
   }
 

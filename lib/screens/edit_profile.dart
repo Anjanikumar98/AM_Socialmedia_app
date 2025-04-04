@@ -66,9 +66,7 @@ class _EditProfileState extends State<EditProfile> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.transparent,
-                    ),
+                    border: Border.all(color: Colors.transparent),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.3),
@@ -78,35 +76,37 @@ class _EditProfileState extends State<EditProfile> {
                       ),
                     ],
                   ),
-                  child: viewModel.imgLink != null
-                      ? Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: CircleAvatar(
-                            radius: 65.0,
-                            backgroundImage: NetworkImage(viewModel.imgLink!),
-                          ),
-                        )
-                      : viewModel.image == null
+                  child:
+                      viewModel.imgLink != null
                           ? Padding(
-                              padding: const EdgeInsets.all(1.0),
-                              child: CircleAvatar(
-                                radius: 65.0,
-                                backgroundImage:
-                                    NetworkImage(widget.user!.photoUrl!),
-                              ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.all(1.0),
-                              child: CircleAvatar(
-                                radius: 65.0,
-                                backgroundImage: FileImage(viewModel.image!),
+                            padding: const EdgeInsets.all(1.0),
+                            child: CircleAvatar(
+                              radius: 65.0,
+                              backgroundImage: NetworkImage(viewModel.imgLink!),
+                            ),
+                          )
+                          : viewModel.image == null
+                          ? Padding(
+                            padding: const EdgeInsets.all(1.0),
+                            child: CircleAvatar(
+                              radius: 65.0,
+                              backgroundImage: NetworkImage(
+                                widget.user!.photoUrl!,
                               ),
                             ),
+                          )
+                          : Padding(
+                            padding: const EdgeInsets.all(1.0),
+                            child: CircleAvatar(
+                              radius: 65.0,
+                              backgroundImage: FileImage(viewModel.image!),
+                            ),
+                          ),
                 ),
               ),
             ),
             SizedBox(height: 10.0),
-            buildForm(viewModel, context)
+            buildForm(viewModel, context),
           ],
         ),
       ),
@@ -147,10 +147,7 @@ class _EditProfileState extends State<EditProfile> {
               },
             ),
             SizedBox(height: 10.0),
-            Text(
-              "Bio",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            Text("Bio", style: TextStyle(fontWeight: FontWeight.bold)),
             TextFormField(
               maxLines: null,
               initialValue: widget.user!.bio,

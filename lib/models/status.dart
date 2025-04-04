@@ -10,13 +10,14 @@ class StatusModel {
   List<dynamic>? viewers;
   Timestamp? time;
 
-  StatusModel(
-      {this.caption,
-      this.url,
-      this.statusId,
-      this.time,
-      this.type,
-      this.viewers});
+  StatusModel({
+    this.caption,
+    this.url,
+    this.statusId,
+    this.time,
+    this.type,
+    this.viewers,
+  });
 
   StatusModel.fromJson(Map<String, dynamic> json) {
     url = json['url'];

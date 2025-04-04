@@ -1,3 +1,4 @@
+import 'package:am_socialmedia_app/pages/dummy_profiles.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class _TabScreenState extends State<TabScreen> {
       'title': 'Profile',
       'icon': CupertinoIcons.person_fill,
       'page': Profile(profileId: firebaseAuth.currentUser!.uid),
+      // 'page': DummyProfileScreen(profileId: 'uid'),
       'index': 4,
     },
   ];

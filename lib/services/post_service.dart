@@ -35,8 +35,8 @@ class PostService {
           "username": user.username,
           "ownerId": FirebaseAuth.instance.currentUser!.uid,
           "mediaUrl": link,
-          "description": description ?? "",
-          "location": location ?? "Wooble",
+          "description": description,
+          "location": location,
           "timestamp": Timestamp.now(),
         })
         .catchError((e) {

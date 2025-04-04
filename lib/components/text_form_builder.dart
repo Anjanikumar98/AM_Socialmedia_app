@@ -18,23 +18,24 @@ class TextFormBuilder extends StatefulWidget {
   final IconData? prefix;
   final IconData? suffix;
 
-  TextFormBuilder(
-      {this.prefix,
-      this.suffix,
-      this.initialValue,
-      this.enabled,
-      this.hintText,
-      this.textInputType,
-      this.controller,
-      this.textInputAction,
-      this.nextFocusNode,
-      this.focusNode,
-      this.submitAction,
-      this.obscureText = false,
-      this.validateFunction,
-      this.onSaved,
-      this.onChange,
-      this.key});
+  TextFormBuilder({
+    this.prefix,
+    this.suffix,
+    this.initialValue,
+    this.enabled,
+    this.hintText,
+    this.textInputType,
+    this.controller,
+    this.textInputAction,
+    this.nextFocusNode,
+    this.focusNode,
+    this.submitAction,
+    this.obscureText = false,
+    this.validateFunction,
+    this.onSaved,
+    this.onChange,
+    this.key,
+  });
 
   @override
   _TextFormBuilderState createState() => _TextFormBuilderState();
@@ -60,7 +61,8 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
                 data: ThemeData(
                   primaryColor: Theme.of(context).colorScheme.secondary,
                   colorScheme: ColorScheme.fromSwatch().copyWith(
-                      secondary: Theme.of(context).colorScheme.secondary),
+                    secondary: Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
                 child: TextFormField(
                   cursorColor: Theme.of(context).colorScheme.secondary,
@@ -72,9 +74,7 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
                     setState(() {});
                     widget.onSaved!(val);
                   },
-                  style: TextStyle(
-                    fontSize: 15.0,
-                  ),
+                  style: TextStyle(fontSize: 15.0),
                   key: widget.key,
                   controller: widget.controller,
                   obscureText: widget.obscureText,
@@ -109,9 +109,7 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
                     // fillColor: Colors.white,
                     filled: true,
                     hintText: widget.hintText,
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
                     contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
                     border: border(context),
                     enabledBorder: border(context),
@@ -129,10 +127,7 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
               padding: const EdgeInsets.only(left: 10.0),
               child: Text(
                 '$error',
-                style: TextStyle(
-                  color: Colors.red[700],
-                  fontSize: 12.0,
-                ),
+                style: TextStyle(color: Colors.red[700], fontSize: 12.0),
               ),
             ),
           ),
@@ -143,21 +138,14 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
 
   border(BuildContext context) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.all(
-        Radius.circular(30.0),
-      ),
-      borderSide: BorderSide(
-        color: Colors.white,
-        width: 0.0,
-      ),
+      borderRadius: BorderRadius.all(Radius.circular(30.0)),
+      borderSide: BorderSide(color: Colors.white, width: 0.0),
     );
   }
 
   focusBorder(BuildContext context) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.all(
-        Radius.circular(30.0),
-      ),
+      borderRadius: BorderRadius.all(Radius.circular(30.0)),
       borderSide: BorderSide(
         color: Theme.of(context).colorScheme.secondary,
         width: 1.0,

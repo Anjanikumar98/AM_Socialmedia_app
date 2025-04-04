@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-
 import '../models/post.dart';
 import '../utils/firebase.dart';
 import '../widgets/indicators.dart';
@@ -13,7 +12,7 @@ class ListPosts extends StatefulWidget {
   final username;
 
   const ListPosts({Key? key, required this.userId, required this.username})
-      : super(key: key);
+    : super(key: key);
 
   @override
   State<ListPosts> createState() => _ListPostsState();
@@ -40,10 +39,7 @@ class _ListPostsState extends State<ListPosts> {
             ),
             Text(
               'Posts',
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -52,37 +48,49 @@ class _ListPostsState extends State<ListPosts> {
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: FutureBuilder(
-          future: postRef
-              .where('ownerId', isEqualTo: widget.userId)
-              .orderBy('timestamp', descending: true)
-              .get(),
+          future:
+              postRef
+                  .where('ownerId', isEqualTo: widget.userId)
+                  // .orderBy('timestamp', descending: true) // 🔴 Remove if index is not ready
+                  .get(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasData) {
-              var snap = snapshot.data;
-              List docs = snap!.docs;
-              return ListView.builder(
-                itemCount: docs.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  PostModel posts = PostModel.fromJson(docs[index].data());
-                  return Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: UserPost(post: posts),
-                  );
-                },
-              );
-            } else if (snapshot.connectionState == ConnectionState.waiting) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return circularProgress(context);
-            } else
+            }
+
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return Center(
                 child: Text(
                   'No Feeds',
-                  style: TextStyle(
-                    fontSize: 26.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
                 ),
               );
+            }
+
+            var snap = snapshot.data!;
+            List docs = snap.docs;
+
+            // 🔵 Manually sort by timestamp (if index is not ready)
+            docs.sort(
+              (a, b) => (b['timestamp'] as Timestamp).compareTo(
+                a['timestamp'] as Timestamp,
+              ),
+            );
+
+            return ListView.builder(
+              itemCount: docs.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                var postData = docs[index].data() as Map<String, dynamic>;
+                PostModel posts = PostModel.fromJson(
+                  postData,
+                ); // ✅ Cast explicitly
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: UserPost(post: posts),
+                );
+              },
+            );
           },
         ),
       ),

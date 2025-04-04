@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:like_button/like_button.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
 import '../components/stream_comments_wrapper.dart';
 import '../models/comments.dart';
 import '../models/post.dart';
@@ -41,9 +40,7 @@ class _CommentsState extends State<Comments> {
           onTap: () {
             Navigator.pop(context);
           },
-          child: Icon(
-            CupertinoIcons.xmark_circle_fill,
-          ),
+          child: Icon(CupertinoIcons.xmark_circle_fill),
         ),
         centerTitle: true,
         title: Text('Comments'),
@@ -60,9 +57,7 @@ class _CommentsState extends State<Comments> {
                     child: buildFullPost(),
                   ),
                   Divider(thickness: 1.5),
-                  Flexible(
-                    child: buildComments(),
-                  )
+                  Flexible(child: buildComments()),
                 ],
               ),
             ),
@@ -74,9 +69,7 @@ class _CommentsState extends State<Comments> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
                   ),
-                  constraints: BoxConstraints(
-                    maxHeight: 190.0,
-                  ),
+                  constraints: BoxConstraints(maxHeight: 190.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -124,10 +117,10 @@ class _CommentsState extends State<Comments> {
                               hintText: "Write your comment...",
                               hintStyle: TextStyle(
                                 fontSize: 15.0,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .color,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge!.color,
                               ),
                             ),
                             maxLines: null,
@@ -137,9 +130,9 @@ class _CommentsState extends State<Comments> {
                               await services.uploadComment(
                                 currentUserId(),
                                 commentsTEC.text,
-                                widget.post!.postId!,
-                                widget.post!.ownerId!,
-                                widget.post!.mediaUrl!,
+                                widget.post!.postId,
+                                widget.post!.ownerId,
+                                widget.post!.mediaUrl,
                               );
                               commentsTEC.clear();
                             },
@@ -173,10 +166,10 @@ class _CommentsState extends State<Comments> {
         Container(
           height: 350.0,
           width: MediaQuery.of(context).size.width - 20.0,
-          child: cachedNetworkImage(widget.post!.mediaUrl!),
+          child: cachedNetworkImage(widget.post!.mediaUrl),
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(1.0),
           child: Row(
             children: [
               Column(
@@ -184,29 +177,32 @@ class _CommentsState extends State<Comments> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.post!.description!,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                    ),
+                    widget.post!.description,
+                    style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                   SizedBox(height: 4.0),
                   Row(
                     children: [
                       Text(
-                        timeago.format(widget.post!.timestamp!.toDate()),
+                        timeago.format(
+                          widget.post!.timestamp,
+                        ), // No need for .toDate()
                         style: TextStyle(),
                       ),
                       SizedBox(width: 3.0),
                       StreamBuilder(
-                        stream: likesRef
-                            .where('postId', isEqualTo: widget.post!.postId)
-                            .snapshots(),
-                        builder:
-                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        stream:
+                            likesRef
+                                .where('postId', isEqualTo: widget.post!.postId)
+                                .snapshots(),
+                        builder: (
+                          context,
+                          AsyncSnapshot<QuerySnapshot> snapshot,
+                        ) {
                           if (snapshot.hasData) {
                             QuerySnapshot snap = snapshot.data!;
                             List<DocumentSnapshot> docs = snap.docs;
-                            return buildLikesCount(context, docs.length ?? 0);
+                            return buildLikesCount(context, docs.length);
                           } else {
                             return buildLikesCount(context, 0);
                           }
@@ -229,15 +225,17 @@ class _CommentsState extends State<Comments> {
     return CommentsStreamWrapper(
       shrinkWrap: true,
       // padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      stream: commentRef
-          .doc(widget.post!.postId)
-          .collection('comments')
-          .orderBy('timestamp', descending: true)
-          .snapshots(),
+      stream:
+          commentRef
+              .doc(widget.post!.postId)
+              .collection('comments')
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (_, DocumentSnapshot snapshot) {
-        CommentModel comments =
-            CommentModel.fromJson(snapshot.data() as Map<String, dynamic>);
+        CommentModel comments = CommentModel.fromJson(
+          snapshot.data() as Map<String, dynamic>,
+        );
         // return Column(
         //   crossAxisAlignment: CrossAxisAlignment.start,
         //   mainAxisAlignment: MainAxisAlignment.start,
@@ -279,7 +277,9 @@ class _CommentsState extends State<Comments> {
                 children: [
                   CircleAvatar(
                     radius: 20.0,
-                    backgroundImage: CachedNetworkImageProvider(comments.userDp!),
+                    backgroundImage: CachedNetworkImageProvider(
+                      comments.userDp!,
+                    ),
                   ),
                   SizedBox(width: 10.0),
                   Column(
@@ -298,12 +298,12 @@ class _CommentsState extends State<Comments> {
                         style: TextStyle(fontSize: 10.0),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 50.0),
-                child: Text( comments.comment!.trim()),
+                child: Text(comments.comment!.trim()),
               ),
               SizedBox(height: 10.0),
             ],
@@ -315,10 +315,11 @@ class _CommentsState extends State<Comments> {
 
   buildLikeButton() {
     return StreamBuilder(
-      stream: likesRef
-          .where('postId', isEqualTo: widget.post!.postId)
-          .where('userId', isEqualTo: currentUserId())
-          .snapshots(),
+      stream:
+          likesRef
+              .where('postId', isEqualTo: widget.post!.postId)
+              .where('userId', isEqualTo: currentUserId())
+              .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasData) {
           List<QueryDocumentSnapshot> docs = snapshot.data?.docs ?? [];
@@ -366,13 +367,16 @@ class _CommentsState extends State<Comments> {
           return LikeButton(
             onTap: onLikeButtonTapped,
             size: 25.0,
-            circleColor:
-                CircleColor(start: Color(0xffFFC0CB), end: Color(0xffff0000)),
+            circleColor: CircleColor(
+              start: Color(0xffFFC0CB),
+              end: Color(0xffff0000),
+            ),
             bubblesColor: BubblesColor(
-                dotPrimaryColor: Color(0xffFFA500),
-                dotSecondaryColor: Color(0xffd8392b),
-                dotThirdColor: Color(0xffFF69B4),
-                dotLastColor: Color(0xffff8c00)),
+              dotPrimaryColor: Color(0xffFFA500),
+              dotSecondaryColor: Color(0xffd8392b),
+              dotThirdColor: Color(0xffFF69B4),
+              dotLastColor: Color(0xffff8c00),
+            ),
             likeBuilder: (bool isLiked) {
               return Icon(
                 docs.isEmpty ? Ionicons.heart_outline : Ionicons.heart,
@@ -392,10 +396,7 @@ class _CommentsState extends State<Comments> {
       padding: const EdgeInsets.only(left: 7.0),
       child: Text(
         '$count likes',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 10.0,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
       ),
     );
   }
@@ -411,14 +412,14 @@ class _CommentsState extends State<Comments> {
           .collection('notifications')
           .doc(widget.post!.postId)
           .set({
-        "type": "like",
-        "username": user!.username!,
-        "userId": currentUserId(),
-        "userDp": user!.photoUrl!,
-        "postId": widget.post!.postId,
-        "mediaUrl": widget.post!.mediaUrl,
-        "timestamp": timestamp,
-      });
+            "type": "like",
+            "username": user!.username!,
+            "userId": currentUserId(),
+            "userDp": user!.photoUrl!,
+            "postId": widget.post!.postId,
+            "mediaUrl": widget.post!.mediaUrl,
+            "timestamp": timestamp,
+          });
     }
   }
 
@@ -433,9 +434,11 @@ class _CommentsState extends State<Comments> {
           .collection('notifications')
           .doc(widget.post!.postId)
           .get()
-          .then((doc) => {
-                if (doc.exists) {doc.reference.delete()}
-              });
+          .then(
+            (doc) => {
+              if (doc.exists) {doc.reference.delete()},
+            },
+          );
     }
   }
 }

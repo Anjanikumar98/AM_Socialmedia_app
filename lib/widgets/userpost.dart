@@ -119,7 +119,7 @@ class UserPost extends StatelessWidget {
                                       List<DocumentSnapshot> docs = snap.docs;
                                       return buildLikesCount(
                                         context,
-                                        docs.length ?? 0,
+                                        docs.length,
                                       );
                                     } else {
                                       return buildLikesCount(context, 0);
@@ -132,7 +132,7 @@ class UserPost extends StatelessWidget {
                             StreamBuilder(
                               stream:
                                   commentRef
-                                      .doc(post!.postId!)
+                                      .doc(post!.postId)
                                       .collection("comments")
                                       .snapshots(),
                               builder: (
@@ -144,7 +144,7 @@ class UserPost extends StatelessWidget {
                                   List<DocumentSnapshot> docs = snap.docs;
                                   return buildCommentsCount(
                                     context,
-                                    docs.length ?? 0,
+                                    docs.length,
                                   );
                                 } else {
                                   return buildCommentsCount(context, 0);
@@ -154,13 +154,11 @@ class UserPost extends StatelessWidget {
                           ],
                         ),
                         Visibility(
-                          visible:
-                              post!.description != null &&
-                              post!.description.toString().isNotEmpty,
+                          visible: post!.description.toString().isNotEmpty,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 5.0, top: 3.0),
                             child: Text(
-                              '${post?.description ?? ""}',
+                              post?.description ?? "",
                               style: TextStyle(
                                 color:
                                     Theme.of(
@@ -176,7 +174,9 @@ class UserPost extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.all(3.0),
                           child: Text(
-                            timeago.format(post!.timestamp!.toDate()),
+                            timeago.format(
+                              post!.timestamp,
+                            ), // No need for .toDate()
                             style: TextStyle(fontSize: 10.0),
                           ),
                         ),
@@ -195,89 +195,122 @@ class UserPost extends StatelessWidget {
   }
 
   buildLikeButton() {
-    return StreamBuilder(
-      stream:
-          likesRef
-              .where('postId', isEqualTo: post!.postId)
-              .where('userId', isEqualTo: currentUserId())
-              .snapshots(),
-      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasData) {
-          List<QueryDocumentSnapshot> docs = snapshot.data?.docs ?? [];
+    final likesRef = FirebaseFirestore.instance
+        .collection('statusRef')
+        .doc(post!.postId)
+        .collection('likes');
 
-          ///replaced this with an animated like button
-          // return IconButton(
-          //   onPressed: () {
-          //     if (docs.isEmpty) {
-          //       likesRef.add({
-          //         'userId': currentUserId(),
-          //         'postId': post!.postId,
-          //         'dateCreated': Timestamp.now(),
-          //       });
-          //       addLikesToNotification();
-          //     } else {
-          //       likesRef.doc(docs[0].id).delete();
-          //       services.removeLikeFromNotification(
-          //           post!.ownerId!, post!.postId!, currentUserId());
-          //     }
-          //   },
-          //   icon: docs.isEmpty
-          //       ? Icon(
-          //           CupertinoIcons.heart,
-          //         )
-          //       : Icon(
-          //           CupertinoIcons.heart_fill,
-          //           color: Colors.red,
-          //         ),
-          // );
-          Future<bool> onLikeButtonTapped(bool isLiked) async {
-            if (docs.isEmpty) {
-              likesRef.add({
-                'userId': currentUserId(),
-                'postId': post!.postId,
-                'dateCreated': Timestamp.now(),
-              });
-              addLikesToNotification();
-              return !isLiked;
-            } else {
-              likesRef.doc(docs[0].id).delete();
-              services.removeLikeFromNotification(
-                post!.ownerId!,
-                post!.postId!,
-                currentUserId(),
-              );
-              return isLiked;
-            }
-          }
-
-          return LikeButton(
-            onTap: onLikeButtonTapped,
-            size: 25.0,
-            circleColor: CircleColor(
-              start: Color(0xffFFC0CB),
-              end: Color(0xffff0000),
-            ),
-            bubblesColor: BubblesColor(
-              dotPrimaryColor: Color(0xffFFA500),
-              dotSecondaryColor: Color(0xffd8392b),
-              dotThirdColor: Color(0xffFF69B4),
-              dotLastColor: Color(0xffff8c00),
-            ),
-            likeBuilder: (bool isLiked) {
-              return Icon(
-                docs.isEmpty ? Ionicons.heart_outline : Ionicons.heart,
-                color:
-                    docs.isEmpty
-                        ? Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black
-                        : Colors.red,
-                size: 25,
-              );
-            },
+    return StreamBuilder<QuerySnapshot>(
+      stream: likesRef.snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          // If no data is available, show the like button immediately (no loading indicator)
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              LikeButton(
+                isLiked: false, // Assume not liked initially
+                onTap: (currentLiked) async {
+                  // Simulate the like action for mock posts
+                  print(
+                    'Mock post like action: ${currentLiked ? 'Remove' : 'Add'} like',
+                  );
+                  return !currentLiked; // Toggle mock like state
+                },
+                size: 25.0,
+                circleColor: CircleColor(
+                  start: Color(0xffFFC0CB),
+                  end: Color(0xffff0000),
+                ),
+                bubblesColor: BubblesColor(
+                  dotPrimaryColor: Color(0xffFFA500),
+                  dotSecondaryColor: Color(0xffd8392b),
+                ),
+                likeBuilder: (bool isLiked) {
+                  return Icon(
+                    isLiked ? Ionicons.heart : Ionicons.heart_outline,
+                    color: isLiked ? Colors.red : Colors.grey,
+                    size: 25,
+                  );
+                },
+              ),
+              const SizedBox(width: 5),
+              buildLikesCount(
+                context,
+                0,
+              ), // No likes count since it's a mock post
+              const SizedBox(width: 20),
+              Icon(Icons.comment, color: Colors.grey, size: 18),
+              const SizedBox(width: 5),
+              buildCommentsCount(context, 0), // No comments for mock post
+            ],
           );
         }
-        return Container();
+
+        // Proceed with the real data if it's available
+        final isLiked = snapshot.data!.docs.any(
+          (doc) => doc['userId'] == currentUserId(),
+        );
+        int likesCount = snapshot.data!.docs.length;
+
+        Future<bool> onLikeButtonTapped(bool currentLiked) async {
+          if (!currentLiked) {
+            // Add like
+            await likesRef.add({
+              'userId': currentUserId(),
+              'dateCreated': Timestamp.now(),
+            });
+            await addLikesToNotification();
+            return true;
+          } else {
+            // Remove like
+            final docId =
+                snapshot.data!.docs
+                    .firstWhere((doc) => doc['userId'] == currentUserId())
+                    .id;
+            await likesRef.doc(docId).delete();
+
+            // Remove notification
+            services.removeLikeFromNotification(
+              post!.ownerId,
+              post!.postId,
+              currentUserId(),
+            );
+            return false;
+          }
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            LikeButton(
+              isLiked: isLiked,
+              onTap: onLikeButtonTapped,
+              size: 25.0,
+              circleColor: CircleColor(
+                start: Color(0xffFFC0CB),
+                end: Color(0xffff0000),
+              ),
+              bubblesColor: BubblesColor(
+                dotPrimaryColor: Color(0xffFFA500),
+                dotSecondaryColor: Color(0xffd8392b),
+              ),
+              likeBuilder: (bool isLiked) {
+                return Icon(
+                  isLiked ? Ionicons.heart : Ionicons.heart_outline,
+                  color: isLiked ? Colors.red : Colors.grey,
+                  size: 25,
+                );
+              },
+            ),
+            const SizedBox(width: 5),
+            buildLikesCount(context, likesCount),
+            const SizedBox(width: 20),
+            Icon(Icons.comment, color: Colors.grey, size: 18),
+            const SizedBox(width: 5),
+            buildCommentsCount(context, post!.comments.length),
+          ],
+        );
       },
     );
   }
@@ -292,9 +325,9 @@ class UserPost extends StatelessWidget {
         "like",
         user!.username!,
         currentUserId(),
-        post!.postId!,
-        post!.mediaUrl!,
-        post!.ownerId!,
+        post!.postId,
+        post!.mediaUrl,
+        post!.ownerId,
         user!.photoUrl!,
       );
     }
@@ -322,88 +355,91 @@ class UserPost extends StatelessWidget {
 
   buildUser(BuildContext context) {
     bool isMe = currentUserId() == post!.ownerId;
-    return StreamBuilder(
+
+    return StreamBuilder<DocumentSnapshot>(
       stream: usersRef.doc(post!.ownerId).snapshots(),
-      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasData) {
-          DocumentSnapshot snap = snapshot.data!;
-          UserModel user = UserModel.fromJson(
-            snap.data() as Map<String, dynamic>,
-          );
-          return Visibility(
-            visible: !isMe,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                height: 50.0,
-                decoration: BoxDecoration(
-                  color: Colors.white60,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    topRight: Radius.circular(10.0),
-                  ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(); // Or a loader if needed
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Container(); // Data not found
+        }
+
+        UserModel user = UserModel.fromJson(
+          snapshot.data!.data() as Map<String, dynamic>,
+        );
+
+        return Visibility(
+          visible: !isMe,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              height: 50.0,
+              decoration: BoxDecoration(
+                color: Colors.white60,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10.0),
+                  topRight: Radius.circular(10.0),
                 ),
-                child: GestureDetector(
-                  onTap: () => showProfile(context, profileId: user.id!),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        user.photoUrl!.isEmpty
-                            ? CircleAvatar(
-                              radius: 20.0,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              child: Center(
-                                child: Text(
-                                  '${user.username![0].toUpperCase()}',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                            )
-                            : CircleAvatar(
-                              radius: 20.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                '${user.photoUrl}',
-                              ),
-                            ),
-                        SizedBox(width: 5.0),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${post?.username ?? ""}',
-                              style: TextStyle(
+              ),
+              child: GestureDetector(
+                onTap: () => showProfile(context, profileId: user.id!),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: Row(
+                    children: [
+                      user.photoUrl!.isEmpty
+                          ? CircleAvatar(
+                            radius: 20.0,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
+                            child: Text(
+                              user.username![0].toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.0,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.black,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              '${post?.location ?? 'Wooble'}',
-                              style: TextStyle(
-                                fontSize: 10.0,
-                                color: Color(0xff4D4D4D),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          )
+                          : CircleAvatar(
+                            radius: 20.0,
+                            backgroundImage: CachedNetworkImageProvider(
+                              user.photoUrl!,
+                            ),
+                          ),
+                      const SizedBox(width: 8.0),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            post?.username ?? "Anjanikumar",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            post?.location ?? 'PUNE',
+                            style: const TextStyle(
+                              fontSize: 10.0,
+                              color: Color(0xff4D4D4D),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          );
-        } else {
-          return Container();
-        }
+          ),
+        );
       },
     );
   }
@@ -415,3 +451,91 @@ class UserPost extends StatelessWidget {
     );
   }
 }
+
+// buildLikeButton() {
+//     return StreamBuilder(
+//       stream:
+//           likesRef
+//               .where('postId', isEqualTo: post!.postId)
+//               .where('userId', isEqualTo: currentUserId())
+//               .snapshots(),
+//       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+//         if (snapshot.hasData) {
+//           List<QueryDocumentSnapshot> docs = snapshot.data?.docs ?? [];
+//
+//           ///replaced this with an animated like button
+//           // return IconButton(
+//           //   onPressed: () {
+//           //     if (docs.isEmpty) {
+//           //       likesRef.add({
+//           //         'userId': currentUserId(),
+//           //         'postId': post!.postId,
+//           //         'dateCreated': Timestamp.now(),
+//           //       });
+//           //       addLikesToNotification();
+//           //     } else {
+//           //       likesRef.doc(docs[0].id).delete();
+//           //       services.removeLikeFromNotification(
+//           //           post!.ownerId!, post!.postId!, currentUserId());
+//           //     }
+//           //   },
+//           //   icon: docs.isEmpty
+//           //       ? Icon(
+//           //           CupertinoIcons.heart,
+//           //         )
+//           //       : Icon(
+//           //           CupertinoIcons.heart_fill,
+//           //           color: Colors.red,
+//           //         ),
+//           // );
+//           Future<bool> onLikeButtonTapped(bool isLiked) async {
+//             if (docs.isEmpty) {
+//               likesRef.add({
+//                 'userId': currentUserId(),
+//                 'postId': post!.postId,
+//                 'dateCreated': Timestamp.now(),
+//               });
+//               addLikesToNotification();
+//               return !isLiked;
+//             } else {
+//               likesRef.doc(docs[0].id).delete();
+//               services.removeLikeFromNotification(
+//                 post!.ownerId,
+//                 post!.postId,
+//                 currentUserId(),
+//               );
+//               return isLiked;
+//             }
+//           }
+//
+//           return LikeButton(
+//             onTap: onLikeButtonTapped,
+//             size: 25.0,
+//             circleColor: CircleColor(
+//               start: Color(0xffFFC0CB),
+//               end: Color(0xffff0000),
+//             ),
+//             bubblesColor: BubblesColor(
+//               dotPrimaryColor: Color(0xffFFA500),
+//               dotSecondaryColor: Color(0xffd8392b),
+//               dotThirdColor: Color(0xffFF69B4),
+//               dotLastColor: Color(0xffff8c00),
+//             ),
+//             likeBuilder: (bool isLiked) {
+//               return Icon(
+//                 docs.isEmpty ? Ionicons.heart_outline : Ionicons.heart,
+//                 color:
+//                     docs.isEmpty
+//                         ? Theme.of(context).brightness == Brightness.dark
+//                             ? Colors.white
+//                             : Colors.black
+//                         : Colors.red,
+//                 size: 25,
+//               );
+//             },
+//           );
+//         }
+//         return Container();
+//       },
+//     );
+//   }

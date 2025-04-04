@@ -14,24 +14,33 @@ import 'utils/constants.dart';
 // Initialize Firebase
 class Config {
   static Future<void> initFirebase() async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      print("Firebase initialized successfully.");
+    } catch (e) {
+      print("Error initializing Firebase: $e");
+    }
   }
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Config.initFirebase();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  final UserService _userService = UserService(); // Reuse the instance
+
   @override
   void initState() {
     super.initState();
@@ -40,11 +49,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      UserService().setUserStatus(true);
-    } else if (state == AppLifecycleState.detached ||
-        state == AppLifecycleState.inactive) {
-      UserService().setUserStatus(false);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _userService.setUserStatus(true);
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+        _userService.setUserStatus(false);
+        break;
+      case AppLifecycleState.detached:
+        // Detached is not always triggered reliably
+        break;
+      case AppLifecycleState.hidden:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 
@@ -59,33 +77,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MultiProvider(
       providers: providers,
       child: Consumer<ThemeProvider>(
-        builder: (context, ThemeProvider notifier, Widget? child) {
+        builder: (context, notifier, child) {
           return MaterialApp(
             title: Constants.appName,
             debugShowCheckedModeBanner: false,
-            theme: themeData(
-              notifier.dark ? Constants.darkTheme : Constants.lightTheme,
-            ),
+            theme: ThemeConfig.getTheme(notifier.dark),
             home: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
+              stream: FirebaseAuth.instance.userChanges(),
               builder: (context, snapshot) {
                 print("Snapshot Connection State: ${snapshot.connectionState}");
-                print("Snapshot Data: ${snapshot.data}");
+                print("User: ${snapshot.data?.uid ?? 'No user logged in'}");
 
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  print("Firebase Auth State: Waiting...");
-                  return Scaffold(
+                  return const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
                   );
                 }
-
-                if (snapshot.hasData && snapshot.data != null) {
-                  print("User Logged In: ${snapshot.data!.uid}");
-                  return TabScreen();
-                } else {
-                  print("No user logged in.");
-                  return Landing();
-                }
+                return snapshot.hasData && snapshot.data != null
+                    ? TabScreen()
+                    : Landing();
               },
             ),
           );
@@ -93,10 +103,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       ),
     );
   }
+}
 
-  ThemeData themeData(ThemeData theme) {
-    return theme.copyWith(
-      textTheme: GoogleFonts.nunitoTextTheme(theme.textTheme),
+class ThemeConfig {
+  static ThemeData getTheme(bool isDark) {
+    return (isDark ? Constants.darkTheme : Constants.lightTheme).copyWith(
+      textTheme: GoogleFonts.nunitoTextTheme(),
     );
   }
 }

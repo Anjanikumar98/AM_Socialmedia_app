@@ -13,8 +13,9 @@ Center circularProgress(context) {
 Container linearProgress(context) {
   return Container(
     child: LinearProgressIndicator(
-      valueColor:
-          AlwaysStoppedAnimation(Theme.of(context).colorScheme.secondary),
+      valueColor: AlwaysStoppedAnimation(
+        Theme.of(context).colorScheme.secondary,
+      ),
     ),
   );
 }

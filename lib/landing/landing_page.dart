@@ -1,6 +1,6 @@
+import 'package:am_socialmedia_app/auth/register/register.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../auth/login/login.dart';
 
 class Landing extends StatefulWidget {
@@ -31,7 +31,7 @@ class _LandingState extends State<Landing> {
               ),
             ),
             Text(
-              'WOOBLE',
+              'AM SocialMedia App',
               style: TextStyle(
                 fontSize: 22.0,
                 fontWeight: FontWeight.w900,
@@ -83,7 +83,7 @@ class _LandingState extends State<Landing> {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushReplacement(
-                    CupertinoPageRoute(builder: (_) => Login()),
+                    CupertinoPageRoute(builder: (_) => RegisterScreen()),
                   );
                 },
                 child: Container(

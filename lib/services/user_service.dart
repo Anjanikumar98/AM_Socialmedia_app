@@ -4,51 +4,69 @@ import 'package:am_socialmedia_app/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 class UserService {
-  // Get the authenticated user ID
-  String currentUid() {
-    return FirebaseAuth.instance.currentUser!.uid;
+  final usersRef = FirebaseFirestore.instance.collection('users');
+
+  // Get the authenticated user ID safely
+  String? currentUid() {
+    return FirebaseAuth.instance.currentUser?.uid;
   }
 
-  // Function to upload an image (replace with actual implementation)
+  // Upload an image to Firebase Storage
   Future<String> uploadImage(String folder, File image) async {
-    // Replace with actual logic to upload to Firebase Storage
-    return "https://your-image-url.com/${image.path}";
+    try {
+      String filePath = '$folder/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      Reference ref = FirebaseStorage.instance.ref().child(filePath);
+      UploadTask uploadTask = ref.putFile(image);
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      print('Upload failed: $e');
+      return '';
+    }
   }
 
-  // Tells when the user is online or not and updates the last seen for messages
+  // Update user online status and last seen
   setUserStatus(bool isOnline) {
-    var user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      usersRef.doc(user.uid).update({
+    String? uid = currentUid();
+    if (uid != null) {
+      usersRef.doc(uid).update({
         'isOnline': isOnline,
         'lastSeen': Timestamp.now(),
       });
     }
   }
 
-  // Updates user profile in the Edit Profile Screen
+  // Update user profile safely
   updateProfile({
     File? image,
     String? username,
     String? bio,
     String? country,
   }) async {
-    DocumentSnapshot doc = await usersRef.doc(currentUid()).get();
+    String? uid = currentUid();
+    if (uid == null) return false;
+
+    DocumentSnapshot doc = await usersRef.doc(uid).get();
     var users = UserModel.fromJson(doc.data() as Map<String, dynamic>);
-    users.username = username;
-    users.bio = bio;
-    users.country = country;
+
+    Map<String, dynamic> updatedData = {};
+
+    if (username != null) updatedData['username'] = username;
+    if (bio != null) updatedData['bio'] = bio;
+    if (country != null) updatedData['country'] = country;
+
     if (image != null) {
-      users.photoUrl = await uploadImage("profilePic", image);
+      String imageUrl = await uploadImage("profilePic", image);
+      updatedData['photoUrl'] = imageUrl;
     }
-    await usersRef.doc(currentUid()).update({
-      'username': username,
-      'bio': bio,
-      'country': country,
-      "photoUrl": users.photoUrl ?? '',
-    });
+
+    if (updatedData.isNotEmpty) {
+      await usersRef.doc(uid).update(updatedData);
+    }
 
     return true;
   }
